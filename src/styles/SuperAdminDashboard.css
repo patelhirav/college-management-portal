@@ -1,0 +1,139 @@
+/* Grid Layout for Departments and HODs */
+.departments-grid,
+.hods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+/* Hover effect on cards */
+.department-card,
+.hod-card {
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  border-radius: 12px;
+}
+
+.department-card:hover,
+.hod-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Department & HOD info */
+.department-stats,
+.hod-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.925rem;
+  color: #374151;
+}
+
+.department-stats p,
+.hod-info p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.department-stats p:first-child,
+.hod-info p:first-child {
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Create HOD Card Form */
+.create-hod-card {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+/* Form Inputs */
+.form-group {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.form-group input {
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+.form-group input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* Submit Button */
+.create-button {
+  width: 100%;
+  padding: 0.85rem;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.create-button:hover {
+  background-color: #1d4ed8;
+}
+
+.create-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Message Styling */
+.message {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.message.success {
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #34d399;
+}
+
+.message.error {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* Responsive Stack */
+@media (max-width: 768px) {
+  .departments-grid,
+  .hods-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .create-hod-card {
+    padding: 1.25rem;
+  }
+}
