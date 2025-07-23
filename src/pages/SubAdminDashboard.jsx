@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar';
 import Card from '../components/Card';
 import apiService from '../services/api';
 import '../styles/SubAdminDashboard.css';
+import ProfessorProfile from '../components/ProfessorProfile';
 
 const SubAdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('subjects');
@@ -73,7 +74,7 @@ const SubAdminDashboard = () => {
         description: '',
         semester: '',
         subjectId: '',
-        taskImage: null,
+        taskImage: '' || null,
       });
       fetchTasks();
     } catch (error) {
@@ -95,10 +96,10 @@ const SubAdminDashboard = () => {
     switch (activeTab) {
       case 'subjects':
         return (
-          <div className="subjects-grid">
+          <div className="subadmin-subjects-grid">
             {subjects.map((subjectAssignment) => (
-              <Card key={subjectAssignment.id} title={subjectAssignment.subject.name} className="subject-card">
-                <div className="subject-info">
+              <Card key={subjectAssignment.id} title={subjectAssignment.subject.name} className="subadmin-subject-card">
+                <div className="subadmin-subject-info">
                   <p><strong>Semester:</strong> {subjectAssignment.subject.semester}</p>
                   <p><strong>Department:</strong> {subjectAssignment.subject.department?.name}</p>
                 </div>
@@ -109,29 +110,29 @@ const SubAdminDashboard = () => {
 
       case 'tasks':
         return (
-          <div className="tasks-grid">
+          <div className="subadmin-tasks-grid">
             {tasks.map((task) => {
               const statusCounts = getTaskStatusCounts(task.taskAssignments);
               return (
-                <Card key={task.id} title={task.title} className="task-card">
-                  <div className="task-info">
+                <Card key={task.id} title={task.title} className="subadmin-task-card">
+                  <div className="subadmin-task-info">
                     <p><strong>Subject:</strong> {task.subject.name}</p>
                     <p><strong>Semester:</strong> {task.semester}</p>
                     <p><strong>Description:</strong> {task.description}</p>
                     <p><strong>Created:</strong> {new Date(task.createdAt).toLocaleDateString()}</p>
                     {task.imageUrl && (
-                      <div className="task-image">
-                        <img src={`http://localhost:5000${task.imageUrl}`} alt="Task" />
+                      <div className="subadmin-task-image">
+                        <img src={task.imageUrl} alt="Task" />
                       </div>
                     )}
-                    <div className="task-status">
-                      <div className="status-item pending">
+                    <div className="subadmin-task-status">
+                      <div className="subadmin-status-item pending">
                         <span>Pending: {statusCounts.PENDING}</span>
                       </div>
-                      <div className="status-item in-progress">
+                      <div className="subadmin-status-item in-progress">
                         <span>In Progress: {statusCounts.IN_PROGRESS}</span>
                       </div>
-                      <div className="status-item completed">
+                      <div className="subadmin-status-item completed">
                         <span>Completed: {statusCounts.COMPLETED}</span>
                       </div>
                     </div>
@@ -144,9 +145,9 @@ const SubAdminDashboard = () => {
 
       case 'create-task':
         return (
-          <Card title="Create New Task" className="create-task-card">
+          <Card title="Create New Task" className="subadmin-create-task-card">
             <form onSubmit={handleCreateTask}>
-              <div className="form-group">
+              <div className="subadmin-form-group">
                 <label htmlFor="title">Task Title:</label>
                 <input
                   type="text"
@@ -156,7 +157,7 @@ const SubAdminDashboard = () => {
                   required
                 />
               </div>
-              <div className="form-group">
+              <div className="subadmin-form-group">
                 <label htmlFor="description">Description:</label>
                 <textarea
                   id="description"
@@ -165,7 +166,7 @@ const SubAdminDashboard = () => {
                   rows="4"
                 />
               </div>
-              <div className="form-group">
+              <div className="subadmin-form-group">
                 <label htmlFor="subjectId">Subject:</label>
                 <select
                   id="subjectId"
@@ -181,7 +182,7 @@ const SubAdminDashboard = () => {
                   ))}
                 </select>
               </div>
-              <div className="form-group">
+              <div className="subadmin-form-group">
                 <label htmlFor="semester">Semester:</label>
                 <select
                   id="semester"
@@ -197,7 +198,7 @@ const SubAdminDashboard = () => {
                   ))}
                 </select>
               </div>
-              <div className="form-group">
+              <div className="subadmin-form-group">
                 <label htmlFor="taskImage">Task Image (Optional):</label>
                 <input
                   type="file"
@@ -206,11 +207,11 @@ const SubAdminDashboard = () => {
                   onChange={(e) => setNewTask({ ...newTask, taskImage: e.target.files[0] })}
                 />
               </div>
-              <button type="submit" disabled={loading} className="create-button">
+              <button type="submit" disabled={loading} className="subadmin-create-button">
                 {loading ? 'Creating...' : 'Create Task'}
               </button>
             </form>
-            {message && <div className="message">{message}</div>}
+            {message && <div className="subadmin-message">{message}</div>}
             
           </Card>
         );
@@ -224,6 +225,7 @@ const SubAdminDashboard = () => {
     <Layout
       title="Professor Dashboard"
       sidebar={<Sidebar activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />}
+      profileComponent={<ProfessorProfile/>} // Placeholder for profile component
     >
       {renderContent()}
     </Layout>

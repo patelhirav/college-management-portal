@@ -1,4 +1,114 @@
 import prisma from '../config/database.js';
+import cloudinary from '../config/cloudinary.js';
+import streamifier from 'streamifier';
+import fs from 'fs';
+
+export const getProfile = async (req, res) => {
+  try {
+    // Get the authenticated user's ID from the request
+    const userId = req.user.id;
+
+    // Fetch the complete profile data including user, professor, and department info
+    const profile = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        professor: {
+          include: {
+            department: {
+              select: {
+                id: true,
+                name: true
+              }
+            },
+            subjects: {
+              include: {
+                subject: {
+                  select: {
+                    id: true,
+                    name: true,
+                    semester: true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!profile) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Verify this is actually an admin/HOD
+    if (!profile.professor || profile.professor.isHod) {
+      return res.status(403).json({ error: 'Access denied - not an sub-admin/professor' });
+    }
+
+    // Structure the response data
+    const responseData = {
+      _id: profile.id,
+      userId: profile.id,
+      name: profile.name,
+      email: profile.email,
+      role: profile.role,
+      departmentId: profile.professor.department.id,
+      departmentName: profile.professor.department.name,
+      bio: profile.professor.bio || null,
+      subjects: profile.professor.subjects.map(sub => ({
+        id: sub.subject.id,
+        name: sub.subject.name,
+        semester: sub.subject.semester
+      })),
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt
+    };
+
+    res.json(responseData);
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const addOrUpdateBio = async (req, res) => {
+  try {
+    const userId = req.user.id; // from JWT
+    const { contact, profession, degree, linkedin } = req.body;
+
+    const professor = await prisma.professor.findUnique({
+      where: { userId },
+    });
+
+    if (!professor) {
+      return res.status(404).json({ error: 'Professor not found' });
+    }
+
+    const updatedProfessor = await prisma.professor.update({
+      where: { userId },
+      data: {
+        bio: {
+          contact,
+          profession,
+          degree,
+          linkedin,
+        },
+      },
+      include: {
+        user: true,
+        department: true,
+      },
+    });
+
+    res.status(200).json({
+      message: 'Bio updated successfully',
+      bio: updatedProfessor.bio,
+    });
+  } catch (error) {
+    console.error('Error updating bio:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 export const getAssignedSubjects = async (req, res) => {
   try {
@@ -27,12 +137,35 @@ export const getAssignedSubjects = async (req, res) => {
 export const createTask = async (req, res) => {
   try {
     const { title, description, semester, subjectId } = req.body;
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const semesterNumber = parseInt(semester, 10);
 
-     const semesterNumber = parseInt(semester, 10);
+    let imageUrl = null;
 
+    // Upload to Cloudinary if image exists
+    if (req.file) {
+      const streamUpload = (req) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'tasks' }, // optional: uploads to "tasks" folder in Cloudinary
+            (error, result) => {
+              if (result) {
+                resolve(result);
+              } else {
+                reject(error);
+              }
+            }
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+      };
+
+      const result = await streamUpload(req);
+      imageUrl = result.secure_url;
+    }
+
+    // Get professor info
     const professor = await prisma.professor.findUnique({
-      where: { userId: req.user.id }
+      where: { userId: req.user.id },
     });
 
     if (!professor) {
@@ -47,29 +180,29 @@ export const createTask = async (req, res) => {
         imageUrl,
         semester: semesterNumber,
         subjectId,
-        professorId: professor.id
-      }
+        professorId: professor.id,
+      },
     });
 
-    // Get all students in the semester and department
+    // Get students
     const students = await prisma.student.findMany({
       where: {
         semester: semesterNumber,
-        departmentId: professor.departmentId
-      }
+        departmentId: professor.departmentId,
+      },
     });
 
-    // Create task assignments for all students
+    // Assign to students
     await prisma.taskAssignment.createMany({
-      data: students.map(student => ({
+      data: students.map((student) => ({
         taskId: task.id,
-        studentId: student.id
-      }))
+        studentId: student.id,
+      })),
     });
 
     res.status(201).json({
       message: 'Task created and assigned successfully',
-      task
+      task,
     });
   } catch (error) {
     console.error('Create task error:', error);

@@ -2,30 +2,95 @@ import bcrypt from 'bcryptjs';
 import prisma from '../config/database.js';
 import { sendCredentials } from '../services/emailService.js';
 
+//superadmin profile
+
+export const getSAdminProfile = async (req, res) => {
+  try {
+    const userId = req.user.id; // set via auth middleware
+
+    // Fetch user by ID
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
+
+    // Check if user is Super Admin
+    if (!user || user.role !== 'SUPER_ADMIN') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    return res.status(200).json({
+      name: user.name,
+      email: user.email,
+    });
+  } catch (error) {
+    console.error('Error fetching super admin profile:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// ✅ Get All HODs (Admins)
 export const getHods = async (req, res) => {
   try {
     const hods = await prisma.user.findMany({
-      where: { role: 'ADMIN' },
+      where: {
+        AND: [
+          { role: 'ADMIN' },          // Must have ADMIN role
+          { professor: { isHod: true } } // Must be a professor marked as HOD
+        ]
+      },
       include: {
-        admin: true
+        professor: {
+          include: {
+            department: true,
+            subjects: {
+              include: {
+                subject: true
+              }
+            }
+          }
+        }
       }
     });
-    res.json(hods);
+
+    // Format the response
+    const formattedHods = hods.map(hod => ({
+      _id: hod.id,
+      userId: hod.id,
+      name: hod.name,
+      email: hod.email,
+      role: hod.role,
+      isHod: hod.professor?.isHod,
+      departmentId: hod.professor?.department?.id,
+      departmentName: hod.professor?.department?.name,
+      bio: hod.professor?.bio || null,
+      subjects: hod.professor?.subjects?.map(sub => ({
+        id: sub.subject.id,
+        name: sub.subject.name,
+        semester: sub.subject.semester
+      })) || [],
+      createdAt: hod.createdAt,
+      updatedAt: hod.updatedAt
+    }));
+
+    res.json(formattedHods);
   } catch (error) {
     console.error('Get HODs error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
 
+// ✅ Create HOD + Department
 export const createHod = async (req, res) => {
   try {
-    const { email, password, departmentName } = req.body;
+    const { email, password, name, departmentName } = req.body;
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
-
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists' });
     }
@@ -33,27 +98,38 @@ export const createHod = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create department and HOD
+    // Create department first
     const department = await prisma.department.create({
-      data: {
-        name: departmentName
-      }
+      data: { name: departmentName }
     });
 
+    // Create user with professor relation (as HOD)
     const user = await prisma.user.create({
       data: {
+        name,
         email,
         password: hashedPassword,
-        role: 'ADMIN'
+        role: 'ADMIN', // Or 'SUB_ADMIN' depending on your role hierarchy
+        professor: {
+          create: {
+            departmentId: department.id,
+            isHod: true, // Mark this professor as HOD
+            bio: null // Set bio to null initially as requested
+          }
+        }
+      },
+      include: {
+        professor: true
       }
     });
 
+    // Update department with HOD reference
     await prisma.department.update({
       where: { id: department.id },
       data: { hodId: user.id }
     });
 
-    // Send credentials via email
+    // Send credentials email
     await sendCredentials(email, password, 'HOD');
 
     res.status(201).json({
@@ -62,7 +138,9 @@ export const createHod = async (req, res) => {
         id: user.id,
         email: user.email,
         role: user.role,
-        department: department
+        name: user.name,
+        department,
+        isHod: true
       }
     });
   } catch (error) {
@@ -71,11 +149,19 @@ export const createHod = async (req, res) => {
   }
 };
 
+// ✅ Get All Departments with HOD and Counts
 export const getDepartments = async (req, res) => {
   try {
     const departments = await prisma.department.findMany({
       include: {
-        hod: true,
+        hod: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true
+          }
+        },
         _count: {
           select: {
             professors: true,

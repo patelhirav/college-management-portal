@@ -74,6 +74,7 @@ const StudentSignup = () => {
         <form onSubmit={handleSubmit} className="signup-form">
           <div className="form-group">
             <FiMail className="input-icon" />
+       
             <input
               type="email"
               id="email"

@@ -15,37 +15,38 @@ class ApiService {
     localStorage.removeItem('token');
   }
 
-  async request(endpoint, options = {}) {
-    const url = `${API_BASE_URL}${endpoint}`;
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-      ...options,
-    };
+ async request(endpoint, options = {}) {
+  const url = `${API_BASE_URL}${endpoint}`;
 
-    if (this.token) {
-      config.headers.Authorization = `Bearer ${this.token}`;
-    }
+  const isFormData = options.body instanceof FormData;
 
-    if (options.body && !(options.body instanceof FormData)) {
-      config.body = JSON.stringify(options.body);
-    }
+  const config = {
+    headers: {
+      ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}),
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
+      ...options.headers, // allow explicit override if needed
+    },
+    ...options,
+  };
 
-    try {
-      const response = await fetch(url, config);
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Request failed');
-      }
-
-      return data;
-    } catch (error) {
-      throw error;
-    }
+  if (options.body && !isFormData) {
+    config.body = JSON.stringify(options.body);
   }
+
+  try {
+    const response = await fetch(url, config);
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Request failed');
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
 
   // Auth endpoints
   async login(credentials) {
@@ -67,6 +68,10 @@ class ApiService {
   }
 
   // Super Admin endpoints
+  async getSuperAdminProfile() {
+    return this.request('/super-admin/profile');
+  }
+
   async getHods() {
     return this.request('/super-admin/hods');
   }
@@ -83,6 +88,25 @@ class ApiService {
   }
 
   // Admin endpoints
+
+  async getAdminProfile() {
+    return this.request('/admin/profile');
+  }
+
+  async addAdminBio(data) {
+    return this.request('/admin/bio', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  async updateAdminBio(data) {
+    return this.request('/admin/bio', {
+      method: 'PUT',
+      body: data,
+    });
+  }
+
   async getDepartmentInfo() {
     return this.request('/admin/department');
   }
@@ -109,6 +133,26 @@ class ApiService {
   }
 
   // Sub Admin endpoints
+
+  async getSubAdminProfile() {
+    return this.request('/sub-admin/profile');
+  }
+
+
+  async addSubAdminBio(data) {
+    return this.request('/sub-admin/bio', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  async updateSubAdminBio(data) {
+    return this.request('/sub-admin/bio', {
+      method: 'PUT',
+      body: data,
+    });
+  }
+
   async getAssignedSubjects() {
     return this.request('/sub-admin/subjects');
   }
@@ -116,8 +160,7 @@ class ApiService {
   async createTask(formData) {
     return this.request('/sub-admin/create-task', {
       method: 'POST',
-      body: formData,
-      headers: {}, // Remove Content-Type for FormData
+      body: formData, // Remove Content-Type for FormData
     });
   }
 
@@ -130,15 +173,32 @@ class ApiService {
   }
 
   // Student endpoints
-  async getProfile() {
+
+
+  async getStudentProfile() {
     return this.request('/student/profile');
   }
 
-  async updateProfile(formData) {
+  async addStudentProfile(data) {
+    return this.request('/student/info', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  async updateStudentProfile(formData) {
     return this.request('/student/profile', {
       method: 'PUT',
       body: formData,
-      headers: {},
+    });
+  }
+
+  async updateStudentProfilePhoto(formData) {
+    console.log("Updating student profile photo");
+    console.log("FormData:", formData);
+    return this.request('/student/profile/photo', {
+      method: 'PUT',
+      body: formData,
     });
   }
 
@@ -154,7 +214,6 @@ class ApiService {
     return this.request(`/student/task-status/${taskId}`, {
       method: 'PUT',
       body: formData,
-      headers: {},
     });
   }
 }

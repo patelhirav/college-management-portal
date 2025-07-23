@@ -1,25 +1,131 @@
 import prisma from '../config/database.js';
+//import { v2 as cloudinary } from 'cloudinary';
+import cloudinary from '../config/cloudinary.js';
+import streamifier from 'streamifier';
 
-export const getProfile = async (req, res) => {
+// cloudinary.config({
+//   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//   api_key: process.env.CLOUDINARY_API_KEY,
+//   api_secret: process.env.CLOUDINARY_API_SECRET,
+// });
+
+export const getStudentProfile = async (req, res) => {
   try {
     const student = await prisma.student.findUnique({
       where: { userId: req.user.id },
       include: {
-        user: true,
-        department: true
+        user: {
+          select: { name: true, email: true }
+        },
+        department: {
+          select: { name: true }
+        }
       }
     });
 
-    if (!student) {
-      return res.status(404).json({ error: 'Student not found' });
-    }
+    if (!student) return res.status(404).json({ error: 'Student profile not found' });
 
     res.json(student);
-  } catch (error) {
-    console.error('Get profile error:', error);
+  } catch (err) {
+    console.error('Error getting student profile:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+
+export const updateStudentInfo = async (req, res) => {
+  try {
+    const {
+      address,
+      mobile,
+      fatherName,
+      fatherMobile,
+      guardianName,
+      city,
+      semester
+    } = req.body;
+
+
+    // Build the info update object dynamically
+    const infoUpdate = {};
+    if (address !== undefined) infoUpdate.address = address;
+    if (mobile !== undefined) infoUpdate.mobile = mobile;
+    if (fatherName !== undefined) infoUpdate.fatherName = fatherName;
+    if (fatherMobile !== undefined) infoUpdate.fatherMobile = fatherMobile;
+    if (guardianName !== undefined) infoUpdate.guardianName = guardianName;
+    if (city !== undefined) infoUpdate.city = city;
+
+    const updateData = {
+      ...(semester !== undefined && { semester }),
+      ...(Object.keys(infoUpdate).length > 0 && {
+        info: { set: infoUpdate }
+      })
+    };
+
+    const updated = await prisma.student.update({
+      where: { userId: req.user.id },
+      data: updateData
+    });
+
+    res.json({ message: 'Student info updated', student: updated });
+
+  } catch (err) {
+    console.error('Error updating student info:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// export const uploadProfilePhoto = async (req, res) => {
+//   try {
+//     // req.file.path contains Cloudinary URL
+//     const imageUrl = req.file.path;
+
+//     // Save this imageUrl to Student or Professor model
+//     await prisma.student.update({ where: { userId: req.user.id }, data: { profilePhoto: imageUrl } })
+
+//     res.json({ success: true, imageUrl });
+//   } catch (err) {
+//     console.error('Upload error:', err);
+//     res.status(500).json({ error: 'Upload failed' });
+//   }
+// };
+
+export const uploadProfilePhoto = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const streamUpload = (req) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream((error, result) => {
+          if (result) {
+            resolve(result);
+          } else {
+            reject(error);
+          }
+        });
+        streamifier.createReadStream(req.file.buffer).pipe(stream);
+      });
+    };
+
+    const result = await streamUpload(req);
+
+    // Now update student's profile photo URL in DB
+    const student = await prisma.student.update({
+      where: { userId: req.user.id },
+      data: {
+        profilePhoto: result.secure_url,
+      },
+    });
+
+    res.status(200).json({ message: 'Profile photo updated', photoUrl: result.secure_url });
+  } catch (error) {
+    console.error('Cloudinary upload failed:', error);
+    res.status(500).json({ message: 'Something went wrong!' });
+  }
+};
+
 
 export const updateProfile = async (req, res) => {
   try {
@@ -127,7 +233,6 @@ export const updateTaskStatus = async (req, res) => {
   try {
     const { taskId } = req.params;
     const { status } = req.body;
-    const submissionUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
     const student = await prisma.student.findUnique({
       where: { userId: req.user.id }
@@ -136,6 +241,39 @@ export const updateTaskStatus = async (req, res) => {
     if (!student) {
       return res.status(404).json({ error: 'Student not found' });
     }
+
+    let submissionUrl = null;
+
+    // If a PDF file is submitted, upload it to Cloudinary
+    
+
+      const streamUpload = (fileBuffer) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              resource_type: 'raw', // Required for PDF or any non-image files
+              folder: 'submissions',
+              format: 'pdf', // Ensures it's treated as a PDF
+              public_id: `submission_${Date.now()}`
+            },
+            (error, result) => {
+              if (result) {
+                resolve(result);
+              } else {
+                reject(error);
+              }
+            }
+          );
+          streamifier.createReadStream(fileBuffer).pipe(stream);
+        });
+      };
+
+      if (req.file) {
+      const result = await streamUpload(req.file.buffer);
+      submissionUrl = result.secure_url;
+    }
+      
+
 
     const updateData = { status };
     if (submissionUrl) {
@@ -156,6 +294,7 @@ export const updateTaskStatus = async (req, res) => {
       message: 'Task status updated successfully',
       taskAssignment
     });
+
   } catch (error) {
     console.error('Update task status error:', error);
     res.status(500).json({ error: 'Internal server error' });

@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import '../styles/Card.css';
 
-const Card = ({ 
-  title, 
-  children, 
-  className = '', 
+const Card = ({
+  title,
+  children,
+  className = '',
   variant = 'default',
   hoverEffect = true,
   headerAction,
@@ -16,37 +16,32 @@ const Card = ({
   border = false
 }) => {
   return (
-    <div 
-      className={`card 
+    <div
+      className={`card-ui 
         ${variant} 
-        ${className} 
         ${hoverEffect ? 'hover-effect' : ''} 
         shadow-${shadow} 
-        ${border ? 'with-border' : ''}
-      `}
+        ${border ? 'with-border' : ''} 
+        ${className}`}
     >
       {image && (
-        <div className="card-image-container">
-          <img src={image} alt={imageAlt} className="card-image" />
+        <div className="card-ui-image-container">
+          <img src={image} alt={imageAlt} className="card-ui-image" />
         </div>
       )}
-      
+
       {(title || headerAction) && (
-        <div className="card-header">
-          {title && <h2 className="card-title">{title}</h2>}
-          {headerAction && <div className="card-header-action">{headerAction}</div>}
+        <div className="card-ui-header">
+          {title && <h2 className="card-ui-title">{title}</h2>}
+          {headerAction && <div className="card-ui-header-action">{headerAction}</div>}
         </div>
       )}
-      
-      <div className="card-content">
+
+      <div className="card-ui-content">
         {children}
       </div>
-      
-      {footer && (
-        <div className="card-footer">
-          {footer}
-        </div>
-      )}
+
+      {footer && <div className="card-ui-footer">{footer}</div>}
     </div>
   );
 };
@@ -56,19 +51,10 @@ Card.propTypes = {
   children: PropTypes.node.isRequired,
   className: PropTypes.string,
   variant: PropTypes.oneOf([
-    'default', 
-    'primary', 
-    'secondary', 
-    'success', 
-    'warning', 
-    'danger', 
-    'info',
-    'stats',
-    'department',
-    'professor',
-    'subject',
-    'task',
-    'student'
+    'default',
+    'primary',
+    'secondary',
+    'stats'
   ]),
   hoverEffect: PropTypes.bool,
   headerAction: PropTypes.node,

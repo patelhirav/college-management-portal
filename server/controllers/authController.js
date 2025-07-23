@@ -9,9 +9,17 @@ export const login = async (req, res) => {
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
-        admin: true,
-        professor: { include: { department: true } },
-        student: { include: { department: true } }
+        professor: { 
+          include: { 
+            department: true 
+          } 
+        },
+        student: { 
+          include: { 
+            department: true 
+          } 
+        },
+        hodDepartment: true // Include if the user is an HOD (admin)
       }
     });
 
@@ -24,8 +32,16 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
+    // Determine if the user is an admin/HOD
+    const isAdmin = user.professor?.isHod || false;
+    const department = user.professor?.department || user.student?.department || null;
+
     const token = jwt.sign(
-      { userId: user.id, role: user.role },
+      { 
+        userId: user.id, 
+        role: user.role,
+        //isAdmin // Include this in the token if needed
+      },
       process.env.JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -34,11 +50,14 @@ export const login = async (req, res) => {
       token,
       user: {
         id: user.id,
+        name: user.name,
         email: user.email,
         role: user.role,
-        admin: user.admin,
+        isAdmin,
+        department,
         professor: user.professor,
-        student: user.student
+        student: user.student,
+        createdAt: user.createdAt
       }
     });
   } catch (error) {
@@ -50,6 +69,14 @@ export const login = async (req, res) => {
 export const studentSignup = async (req, res) => {
   try {
     const { email, password, name, semester, departmentId } = req.body;
+
+    // Only allow email ending with @example.edu
+    const allowedDomain = '@example.edu';
+    if (!email.endsWith(allowedDomain)) {
+      return res.status(400).json({ error: `Signup allowed only with college email.` });
+    }
+
+    
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -66,12 +93,12 @@ export const studentSignup = async (req, res) => {
     // Create user and student
     const user = await prisma.user.create({
       data: {
+        name,
         email,
         password: hashedPassword,
         role: 'STUDENT',
         student: {
           create: {
-            name,
             semester,
             departmentId
           }

@@ -4,11 +4,13 @@ import Sidebar from '../components/Sidebar';
 import Card from '../components/Card';
 import apiService from '../services/api';
 import '../styles/AdminDashboard.css';
+import AdminProfile from '../components/AdminProfile';
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [department, setDepartment] = useState(null);
   const [newProfessor, setNewProfessor] = useState({
+    name: '',
     email: '',
     password: '',
     subjectIds: [],
@@ -49,7 +51,7 @@ const AdminDashboard = () => {
     try {
       await apiService.createProfessor(newProfessor);
       setMessage('Professor created successfully and credentials sent via email');
-      setNewProfessor({ email: '', password: '', subjectIds: [] });
+      setNewProfessor({ name:'', email: '', password: '', subjectIds: [] });
       fetchDepartmentInfo();
     } catch (error) {
       setMessage(`Error: ${error.message}`);
@@ -84,18 +86,18 @@ const AdminDashboard = () => {
     switch (activeTab) {
       case 'overview':
         return (
-          <div className="overview-grid">
-            <Card title="Department Statistics" className="stats-card">
-              <div className="stats">
-                <div className="stat-item">
+          <div className="admin-overview-grid">
+            <Card title="Department Statistics" className="admin-stats-card">
+              <div className="admin-stats">
+                <div className="admin-stat-item">
                   <h3>{department.professors?.length || 0}</h3>
                   <p>Professors</p>
                 </div>
-                <div className="stat-item">
+                <div className="admin-stat-item">
                   <h3>{department.subjects?.length || 0}</h3>
                   <p>Subjects</p>
                 </div>
-                <div className="stat-item">
+                <div className="admin-stat-item">
                   <h3>{department.students?.length || 0}</h3>
                   <p>Students</p>
                 </div>
@@ -106,10 +108,10 @@ const AdminDashboard = () => {
 
       case 'professors':
         return (
-          <div className="professors-grid">
+          <div className="admin-professors-grid">
             {department.professors?.map((professor) => (
-              <Card key={professor.id} title="Professor" className="professor-card">
-                <div className="professor-info">
+              <Card key={professor.id} title={professor.user.name} className="admin-professor-card">
+                <div className="admin-professor-info">
                   <p><strong>Email:</strong> {professor.user.email}</p>
                   <p><strong>Subjects:</strong></p>
                   <ul>
@@ -125,15 +127,15 @@ const AdminDashboard = () => {
 
       case 'subjects':
         return (
-          <div className="subjects-grid">
+          <div className="admin-subjects-grid">
             {department.subjects?.map((subject) => (
-              <Card key={subject.id} title={subject.name} className="subject-card">
-                <div className="subject-info">
+              <Card key={subject.id} title={subject.name} className="admin-subject-card">
+                <div className="admin-subject-info">
                   <p><strong>Semester:</strong> {subject.semester}</p>
                   <p><strong>Professors:</strong></p>
                   <ul>
                     {subject.professors.map((prof) => (
-                      <li key={prof.id}>{prof.professor.user.email}</li>
+                      <li key={prof.id}>{prof.professor.user.name}</li>
                     ))}
                   </ul>
                 </div>
@@ -144,9 +146,19 @@ const AdminDashboard = () => {
 
       case 'create-professor':
         return (
-          <Card title="Add New Professor" className="create-professor-card">
+          <Card title="Add New Professor" className="admin-create-professor-card">
             <form onSubmit={handleCreateProfessor}>
-              <div className="form-group">
+              <div className="admin-form-group">
+                <label htmlFor="name">Name:</label>
+                <input
+                  type="name"
+                  id="name"
+                  value={newProfessor.name}
+                  onChange={(e) => setNewProfessor({ ...newProfessor, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="admin-form-group">
                 <label htmlFor="email">Email:</label>
                 <input
                   type="email"
@@ -156,7 +168,7 @@ const AdminDashboard = () => {
                   required
                 />
               </div>
-              <div className="form-group">
+              <div className="admin-form-group">
                 <label htmlFor="password">Password:</label>
                 <input
                   type="password"
@@ -166,11 +178,11 @@ const AdminDashboard = () => {
                   required
                 />
               </div>
-              <div className="form-group">
+              <div className="admin-form-group">
                 <label htmlFor="subjects">Assign Subjects:</label>
-                <div className="subjects-checkboxes">
+                <div className="admin-subjects-checkboxes">
                   {department.subjects?.map((subject) => (
-                    <label key={subject.id} className="checkbox-label">
+                    <label key={subject.id} className="admin-checkbox-label">
                       <input
                         type="checkbox"
                         checked={newProfessor.subjectIds.includes(subject.id)}
@@ -193,20 +205,20 @@ const AdminDashboard = () => {
                   ))}
                 </div>
               </div>
-              <button type="submit" disabled={loading} className="create-button">
+              <button type="submit" disabled={loading} className="admin-create-button">
                 {loading ? 'Creating...' : 'Create Professor'}
               </button>
             </form>
-            {message && <div className="message">{message}</div>}
+            {message && <div className="admin-message">{message}</div>}
             
           </Card>
         );
 
       case 'create-subject':
         return (
-          <Card title="Add New Subject" className="create-subject-card">
+          <Card title="Add New Subject" className="admin-create-subject-card">
             <form onSubmit={handleCreateSubject}>
-              <div className="form-group">
+              <div className="admin-form-group">
                 <label htmlFor="name">Subject Name:</label>
                 <input
                   type="text"
@@ -216,7 +228,7 @@ const AdminDashboard = () => {
                   required
                 />
               </div>
-              <div className="form-group">
+              <div className="admin-form-group">
                 <label htmlFor="semester">Semester:</label>
                 <select
                   id="semester"
@@ -232,11 +244,11 @@ const AdminDashboard = () => {
                   ))}
                 </select>
               </div>
-              <button type="submit" disabled={loading} className="create-button">
+              <button type="submit" disabled={loading} className="admin-create-button">
                 {loading ? 'Creating...' : 'Create Subject'}
               </button>
             </form>
-            {message && <div className="message">{message}</div>}
+            {message && <div className="admin-message">{message}</div>}
             
           </Card>
         );
@@ -250,6 +262,7 @@ const AdminDashboard = () => {
     <Layout
       title={`HOD Dashboard - ${department?.name || 'Department'}`}
       sidebar={<Sidebar activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />}
+      profileComponent={<AdminProfile />}
     >
       {renderContent()}
     </Layout>

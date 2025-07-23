@@ -8,7 +8,7 @@ import AdminDashboard from './pages/AdminDashboard.jsx';
 import SubAdminDashboard from './pages/SubAdminDashboard.jsx';
 import StudentDashboard from './pages/StudentDashboard.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
-import './styles/App.css';
+import './App.css';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { isAuthenticated, user, loading } = useAuth();

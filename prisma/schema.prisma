@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,18 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String   @unique
-  password  String
-  role      Role
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  admin     Department? @relation("HodDepartment")
-  professor Professor?
-  student   Student?
-}
-
 enum Role {
   SUPER_ADMIN
   ADMIN
@@ -32,88 +14,138 @@ enum Role {
   STUDENT
 }
 
-model Department {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String
-  hodId     String?  @unique @db.ObjectId
-  hod       User?    @relation("HodDepartment", fields: [hodId], references: [id])
-  professors Professor[]
-  subjects  Subject[]
-  students  Student[]
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
 }
 
-model Subject {
-  id            String            @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  semester      Int
-  departmentId  String @db.ObjectId
-  department    Department        @relation(fields: [departmentId], references: [id])
-  professors    ProfessorSubject[]
-  tasks         Task[]
+model User {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String     @unique
+  password     String
+  role         Role
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  hodDepartment Department? @relation("HodDepartment")
+  professor     Professor?
+  student       Student?
+}
+
+model Department {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  name       String      @unique
+  hodId      String?     @unique @db.ObjectId
+  hod        User?       @relation("HodDepartment", fields: [hodId], references: [id])
+  professors Professor[]
+  subjects   Subject[]
+  students   Student[]
 }
 
 model Professor {
-  id            String            @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String            @unique @db.ObjectId
-  user          User              @relation(fields: [userId], references: [id])
-  departmentId  String @db.ObjectId
-  department    Department        @relation(fields: [departmentId], references: [id])
-  subjects      ProfessorSubject[]
-  tasks         Task[]
+  id           String             @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String             @unique @db.ObjectId
+  user         User               @relation(fields: [userId], references: [id])
+  departmentId String             @db.ObjectId
+  department   Department         @relation(fields: [departmentId], references: [id])
+  subjects     ProfessorSubject[]
+  tasks        Task[]
+  bio          ProfessorBio?
+  isHod        Boolean          @default(false)
+
+  @@index([departmentId])
+}
+
+type ProfessorBio {
+  contact     String
+  profession  String
+  degree      String
+  linkedin    String?
+}
+
+model Student {
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String           @unique @db.ObjectId
+  user            User             @relation(fields: [userId], references: [id])
+  semester        Int
+  profilePhoto    String?
+  departmentId    String           @db.ObjectId
+  department      Department       @relation(fields: [departmentId], references: [id])
+  taskAssignments TaskAssignment[]
+  info            StudentInfo?
+
+  @@index([departmentId])
+  @@index([semester])
+}
+
+type StudentInfo {
+  address       String
+  mobile        String
+  fatherName    String
+  fatherMobile  String
+  guardianName  String?
+  city          String?
+}
+
+model Subject {
+  id           String             @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  semester     Int
+  departmentId String             @db.ObjectId
+  department   Department         @relation(fields: [departmentId], references: [id])
+  professors   ProfessorSubject[]
+  tasks        Task[]
+
+  @@index([departmentId])
+  @@index([semester])
 }
 
 model ProfessorSubject {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  professorId String    @db.ObjectId
-  subjectId   String    @db.ObjectId
-  professor   Professor @relation(fields: [professorId], references: [id])
-  subject     Subject   @relation(fields: [subjectId], references: [id])
-  
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  professorId  String     @db.ObjectId
+  subjectId    String     @db.ObjectId
+  professor    Professor  @relation(fields: [professorId], references: [id])
+  subject      Subject    @relation(fields: [subjectId], references: [id])
+
   @@unique([professorId, subjectId])
   @@index([professorId])
   @@index([subjectId])
 }
 
-model Student {
-  id            String            @id @default(auto()) @map("_id") @db.ObjectId
-  userId        String            @unique @db.ObjectId
-  user          User              @relation(fields: [userId], references: [id])
-  name          String
-  semester      Int
-  profilePhoto  String?
-  departmentId  String @db.ObjectId
-  department    Department        @relation(fields: [departmentId], references: [id])
-  taskAssignments TaskAssignment[]
-}
-
 model Task {
-  id            String            @id @default(auto()) @map("_id") @db.ObjectId
-  title         String
-  description   String?
-  imageUrl      String?
-  semester      Int
-  subjectId     String @db.ObjectId
-  subject       Subject           @relation(fields: [subjectId], references: [id])
-  professorId   String @db.ObjectId
-  professor     Professor         @relation(fields: [professorId], references: [id])
-  createdAt     DateTime          @default(now())
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  title           String
+  description     String?
+  imageUrl        String?
+  semester        Int
+  subjectId       String           @db.ObjectId
+  subject         Subject          @relation(fields: [subjectId], references: [id])
+  professorId     String           @db.ObjectId
+  professor       Professor        @relation(fields: [professorId], references: [id])
+  dueDate       DateTime?
+  createdAt       DateTime         @default(now())
   taskAssignments TaskAssignment[]
+
+  @@index([semester])
+  @@index([subjectId])
+  @@index([professorId])
 }
 
 model TaskAssignment {
-  id            String            @id @default(auto()) @map("_id") @db.ObjectId
-  taskId        String @db.ObjectId
-  studentId     String @db.ObjectId
-  status        TaskStatus        @default(PENDING)
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  taskId        String      @db.ObjectId
+  studentId     String      @db.ObjectId
+  status        TaskStatus  @default(PENDING)
   submissionUrl String?
-  updatedAt     DateTime          @updatedAt
-  task          Task              @relation(fields: [taskId], references: [id])
-  student       Student           @relation(fields: [studentId], references: [id])
-  @@unique([taskId, studentId])
-}
+  dueDate       DateTime?
+  updatedAt     DateTime    @updatedAt
 
-enum TaskStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
+  task          Task        @relation(fields: [taskId], references: [id])
+  student       Student     @relation(fields: [studentId], references: [id])
+
+  @@unique([taskId, studentId])
+  @@index([taskId])
+  @@index([studentId])
 }

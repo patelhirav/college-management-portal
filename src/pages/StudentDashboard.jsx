@@ -4,9 +4,10 @@ import Sidebar from '../components/Sidebar';
 import Card from '../components/Card';
 import apiService from '../services/api';
 import '../styles/StudentDashboard.css';
+import StudentProfile from '../components/StudentProfile';
 
 const StudentDashboard = () => {
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState('subjects');
   const [profile, setProfile] = useState(null);
   const [subjects, setSubjects] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -18,33 +19,19 @@ const StudentDashboard = () => {
   const [message, setMessage] = useState('');
 
   const tabs = [
-    { id: 'profile', label: 'Profile' },
     { id: 'subjects', label: 'My Subjects' },
     { id: 'tasks', label: 'Tasks' },
   ];
 
   useEffect(() => {
-    if (activeTab === 'profile') {
-      fetchProfile();
-    } else if (activeTab === 'subjects') {
+    if (activeTab === 'subjects') {
       fetchSubjects();
     } else if (activeTab === 'tasks') {
       fetchTasks();
     }
   }, [activeTab]);
 
-  const fetchProfile = async () => {
-    try {
-      const data = await apiService.getProfile();
-      setProfile(data);
-      setProfileForm({
-        name: data.name,
-        profilePhoto: null,
-      });
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    }
-  };
+
 
   const fetchSubjects = async () => {
     try {
@@ -59,6 +46,7 @@ const StudentDashboard = () => {
     try {
       const data = await apiService.getStudentTasks();
       setTasks(data);
+      console.log('Fetched tasks:', data);
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
@@ -122,68 +110,19 @@ const StudentDashboard = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'profile':
-        return (
-          <Card title="My Profile" className="profile-card">
-            {profile && (
-              <div className="profile-info">
-                <div className="profile-header">
-                  {profile.profilePhoto && (
-                    <img
-                      src={`http://localhost:5000${profile.profilePhoto}`}
-                      alt="Profile"
-                      className="profile-photo"
-                    />
-                  )}
-                  <div className="profile-details">
-                    <h3>{profile.name}</h3>
-                    <p><strong>Email:</strong> {profile.user.email}</p>
-                    <p><strong>Semester:</strong> {profile.semester}</p>
-                    <p><strong>Department:</strong> {profile.department.name}</p>
-                  </div>
-                </div>
-                <form onSubmit={handleProfileUpdate} className="profile-form">
-                  <div className="form-group">
-                    <label htmlFor="name">Name:</label>
-                    <input
-                      type="text"
-                      id="name"
-                      value={profileForm.name}
-                      onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="profilePhoto">Profile Photo:</label>
-                    <input
-                      type="file"
-                      id="profilePhoto"
-                      accept="image/*"
-                      onChange={(e) => setProfileForm({ ...profileForm, profilePhoto: e.target.files[0] })}
-                    />
-                  </div>
-                  <button type="submit" disabled={loading} className="update-button">
-                    {loading ? 'Updating...' : 'Update Profile'}
-                  </button>
-                </form>
-                {message && <div className="message">{message}</div>}
-                
-              </div>
-            )}
-          </Card>
-        );
+    
 
       case 'subjects':
         return (
-          <div className="subjects-grid">
+          <div className="student-subjects-grid">
             {subjects.map((subject) => (
-              <Card key={subject.id} title={subject.name} className="subject-card">
-                <div className="subject-info">
+              <Card key={subject.id} title={subject.name} className="student-subject-card">
+                <div className="student-subject-info">
                   <p><strong>Semester:</strong> {subject.semester}</p>
                   <p><strong>Professors:</strong></p>
                   <ul>
                     {subject.professors.map((prof) => (
-                      <li key={prof.id}>{prof.professor.user.email}</li>
+                      <li key={prof.id}>{prof.professor.user.name}</li>
                     ))}
                   </ul>
                 </div>
@@ -194,18 +133,18 @@ const StudentDashboard = () => {
 
       case 'tasks':
         return (
-          <div className="tasks-grid">
+          <div className="student-tasks-grid">
             {tasks.map((taskAssignment) => (
-              <Card key={taskAssignment.id} title={taskAssignment.task.title} className="task-card">
-                <div className="task-info">
+              <Card key={taskAssignment.id} title={taskAssignment.task.title} className="student-task-card">
+                <div className="student-task-info">
                   <p><strong>Subject:</strong> {taskAssignment.task.subject.name}</p>
                   <p><strong>Professor:</strong> {taskAssignment.task.professor.user.email}</p>
                   <p><strong>Description:</strong> {taskAssignment.task.description}</p>
                   <p><strong>Assigned:</strong> {new Date(taskAssignment.task.createdAt).toLocaleDateString()}</p>
                   
                   {taskAssignment.task.imageUrl && (
-                    <div className="task-image">
-                      <img src={`http://localhost:5000${taskAssignment.task.imageUrl}`} alt="Task" />
+                    <div className="student-task-image">
+                      <img src={taskAssignment.task.imageUrl} alt="Task" />
                     </div>
                   )}
                   
@@ -213,7 +152,7 @@ const StudentDashboard = () => {
                     <strong>Status:</strong> {taskAssignment.status.replace('_', ' ')}
                   </div>
                   
-                  <div className="task-actions">
+                  <div className="student-task-actions">
                     <select
                       value={taskAssignment.status}
                       onChange={(e) => handleTaskStatusUpdate(taskAssignment.task.id, e.target.value)}
@@ -233,8 +172,8 @@ const StudentDashboard = () => {
                   </div>
                   
                   {taskAssignment.submissionUrl && (
-                    <div className="submission-link">
-                      <a href={`http://localhost:5000${taskAssignment.submissionUrl}`} target="_blank" rel="noopener noreferrer">
+                    <div className="student-submission-link">
+                      <a href={taskAssignment.submissionUrl} target="_blank" rel="noopener noreferrer">
                         View Submission
                       </a>
                     </div>
@@ -254,6 +193,7 @@ const StudentDashboard = () => {
     <Layout
       title="Student Dashboard"
       sidebar={<Sidebar activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />}
+      profileComponent={<StudentProfile />} // Placeholder for profile component
     >
       {renderContent()}
     </Layout>

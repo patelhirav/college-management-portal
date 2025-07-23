@@ -11,12 +11,21 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       include: {
-        admin: true,
-        professor: true,
-        student: true
+        professor: {
+          include: {
+            department: true
+          }
+        },
+        student: {
+          include: {
+            department: true
+          }
+        },
+        hodDepartment: true // Include if the user is an HOD
       }
     });
 
@@ -24,10 +33,23 @@ export const authenticateToken = async (req, res, next) => {
       return res.status(401).json({ error: 'User not found' });
     }
 
-    req.user = user;
+    // Add isAdmin flag based on professor.isHod status
+    const userWithAuthContext = {
+      ...user,
+      isAdmin: user.professor?.isHod || false
+    };
+
+    req.user = userWithAuthContext;
     next();
   } catch (error) {
-    return res.status(403).json({ error: 'Invalid token' });
+    console.error('Authentication error:', error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired' });
+    }
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(403).json({ error: 'Invalid token' });
+    }
+    return res.status(500).json({ error: 'Authentication failed' });
   }
 };
 
