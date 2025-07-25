@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import Sidebar from '../components/Sidebar';
-import Card from '../components/Card';
 import apiService from '../services/api';
 import '../styles/SuperAdminDashboard.css';
 import SuperAdminProfile from '../components/SuperAdminprofile';
@@ -58,7 +57,7 @@ const SuperAdminDashboard = () => {
 
     try {
       console.log('Creating HOD with data:', newHod);
-      await apiService.createHod(newHod, token);
+      await apiService.createHod(newHod);
       setMessage('HOD created successfully and credentials sent via email');
       setNewHod({name:'', email: '', password: '', departmentName: '' });
     } catch (error) {
@@ -74,14 +73,17 @@ const SuperAdminDashboard = () => {
         return (
           <div className="superadmin-departments-grid">
             {departments.map((dept) => (
-              <Card key={dept.id} title={dept.name} className="superadmin-department-card">
-                <div className="superadmin-department-stats">
-                  <p>HOD: {dept.hod?.email || 'Not assigned'}</p>
-                  <p>Professors: {dept._count.professors}</p>
-                  <p>Subjects: {dept._count.subjects}</p>
-                  <p>Students: {dept._count.students}</p>
+              <div key={dept.id} className="superadmin-department-card">
+                <div className="superadmin-department-card-header">
+                  <h3 className="superadmin-department-card-title">{dept.name}</h3>
                 </div>
-              </Card>
+                <div className="superadmin-department-stats">
+                  <p><strong>HOD:</strong> {dept.hod?.email || 'Not assigned'}</p>
+                  <p><strong>Professors:</strong> {dept._count.professors}</p>
+                  <p><strong>Subjects:</strong> {dept._count.subjects}</p>
+                  <p><strong>Students:</strong> {dept._count.students}</p>
+                </div>
+              </div>
             ))}
           </div>
         );
@@ -90,25 +92,31 @@ const SuperAdminDashboard = () => {
         return (
           <div className="superadmin-hods-grid">
             {hods.map((hod) => (
-            <Card key={hod.id} title={hod.name} className="superadmin-hod-card">
+              <div key={hod.id} className="superadmin-hod-card">
+                <div className="superadmin-hod-card-header">
+                  <h3 className="superadmin-hod-card-title">{hod.name}</h3>
+                </div>
                 <div className="superadmin-hod-info">
                   <p><strong>Email:</strong> {hod.email}</p>
                   <p><strong>Department:</strong> {hod.departmentName || 'Not assigned'}</p>
                   <p><strong>Posted On:</strong> {new Date(hod.createdAt).toLocaleDateString()}</p>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         );
 
       case 'create-hod':
         return (
-          <Card title="Create New HOD" className="superadmin-create-hod-card">
+          <div className="superadmin-create-hod-card">
+            <div className="superadmin-create-hod-card-header">
+              <h3 className="superadmin-create-hod-card-title">Create New HOD</h3>
+            </div>
             <form onSubmit={handleCreateHod}>
-               <div className="superadmin-form-group">
-                <label htmlFor="email">Name:</label>
+              <div className="superadmin-form-group">
+                <label htmlFor="name">Name:</label>
                 <input
-                  type="name"
+                  type="text"
                   id="name"
                   value={newHod.name}
                   onChange={(e) => setNewHod({ ...newHod, name: e.target.value })}
@@ -154,9 +162,7 @@ const SuperAdminDashboard = () => {
                 {message}
               </div>
             )}
-
-
-          </Card>
+          </div>
         );
 
       default:

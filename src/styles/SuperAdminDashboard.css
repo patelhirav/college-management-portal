@@ -1,93 +1,306 @@
-:root {
-  --primary: #667eea;
-  --primary-dark: #5a6fd1;
-  --secondary: #764ba2;
-  --error-color: #b91c1c;
-  --error-bg: #fee2e2;
-  --text: #1a1a1a;
-  --text-light: #666;
-  --border-color: #e5e7eb;
-  --bg: #f9fafb;
-  --white: #ffffff;
-}
-
-.superadmin-dashboard-wrapper {
-  padding: 1rem;
-  background: var(--bg);
-  min-height: 100%;
-}
-
-/* DEPARTMENT CARDS */
+/* SuperAdminDashboard.css */
 .superadmin-departments-grid,
 .superadmin-hods-grid {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 1.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  margin-top: 1rem;
+  padding: 1rem 0;
 }
 
-.superadmin-department-stats,
-.superadmin-hod-info {
-  padding: 1rem;
-  color: var(--text);
-  font-size: 0.95rem;
-  line-height: 1.6;
+/* Department Cards */
+.superadmin-department-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-/* CREATE HOD FORM */
-.superadmin-create-hod-form {
+.superadmin-department-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.superadmin-department-card::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+}
+
+.superadmin-department-card-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.superadmin-department-card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.superadmin-department-stats {
+  padding: 1.5rem;
+}
+
+.superadmin-department-stats p {
+  margin: 0 0 0.75rem 0;
+  color: #64748b;
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-top: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.superadmin-department-stats p:last-child {
+  border-bottom: none;
+}
+
+.superadmin-department-stats strong {
+  color: #374151;
+  font-weight: 600;
+}
+
+/* HOD Cards */
+.superadmin-hod-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.superadmin-hod-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.superadmin-hod-card::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.superadmin-hod-card-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.superadmin-hod-card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.superadmin-hod-info {
+  padding: 1.5rem;
+}
+
+.superadmin-hod-info p {
+  margin: 0 0 0.75rem 0;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.superadmin-hod-info strong {
+  color: #374151;
+  font-weight: 600;
+}
+
+/* Create HOD Form Card */
+.superadmin-create-hod-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.superadmin-create-hod-card::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.superadmin-create-hod-card-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.superadmin-create-hod-card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.superadmin-create-hod-card form {
+  padding: 1.5rem;
 }
 
 .superadmin-form-group {
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 1.5rem;
 }
 
 .superadmin-form-group label {
-  margin-bottom: 0.25rem;
-  color: var(--text-light);
-  font-weight: 500;
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
 }
 
 .superadmin-form-group input {
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-size: 0.95rem;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  outline: none;
+  background: #ffffff;
+}
+
+.superadmin-form-group input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .superadmin-create-button {
-  padding: 0.6rem 1.2rem;
-  background-color: var(--primary);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
   border: none;
-  border-radius: 6px;
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
   cursor: pointer;
-  font-weight: 500;
-  transition: 0.2s ease-in-out;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+  width: 100%;
 }
 
-.superadmin-create-button:hover {
-  background-color: var(--primary-dark);
+.superadmin-create-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
 }
 
-.superadmin-message {
+.superadmin-create-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.message {
   margin-top: 1rem;
-  padding: 0.75rem;
-  border-radius: 6px;
+  padding: 1rem;
+  border-radius: 0.5rem;
   font-weight: 500;
 }
 
-.superadmin-message.success {
-  background-color: #d1fae5;
-  color: #065f46;
+.message.success {
+  background: #d1fae5;
+  color: #059669;
+  border: 1px solid #34d399;
 }
 
-.superadmin-message.error {
-  background-color: var(--error-bg);
-  color: var(--error-color);
+.message.error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+/* Empty States */
+.superadmin-departments-grid:empty::after,
+.superadmin-hods-grid:empty::after {
+  content: 'No items to display';
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 1rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .superadmin-departments-grid,
+  .superadmin-hods-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0.5rem 0;
+  }
+
+  .superadmin-create-hod-card {
+    margin: 0;
+  }
+
+  .superadmin-department-card-header,
+  .superadmin-hod-card-header,
+  .superadmin-create-hod-card-header {
+    padding: 1rem;
+  }
+
+  .superadmin-department-card-title,
+  .superadmin-hod-card-title,
+  .superadmin-create-hod-card-title {
+    font-size: 1.2rem;
+  }
+
+  .superadmin-department-stats,
+  .superadmin-hod-info {
+    padding: 1rem;
+  }
+
+  .superadmin-create-hod-card form {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .superadmin-departments-grid,
+  .superadmin-hods-grid {
+    gap: 0.75rem;
+  }
+
+  .superadmin-department-card-header,
+  .superadmin-hod-card-header,
+  .superadmin-create-hod-card-header {
+    padding: 0.75rem;
+  }
+
+  .superadmin-department-card-title,
+  .superadmin-hod-card-title,
+  .superadmin-create-hod-card-title {
+    font-size: 1.1rem;
+  }
+
+  .superadmin-department-stats,
+  .superadmin-hod-info {
+    padding: 0.75rem;
+  }
+
+  .superadmin-create-hod-card form {
+    padding: 0.75rem;
+  }
+
+  .superadmin-form-group {
+    margin-bottom: 1rem;
+  }
+
+  .superadmin-department-stats p {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
 }

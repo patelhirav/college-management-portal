@@ -1,122 +1,348 @@
-:root {
-  --primary: #667eea;
-  --primary-dark: #5a6fd1;
-  --secondary: #764ba2;
-  --error-color: #b91c1c;
-  --error-bg: #fee2e2;
-  --text: #1a1a1a;
-  --text-light: #666;
-  --border-color: #e5e7eb;
-  --bg: #f9fafb;
-  --white: #ffffff;
-}
-
-/* Subjects & Tasks Grid */
+/* SubAdminDashboard.css */
 .subadmin-subjects-grid,
 .subadmin-tasks-grid {
   display: grid;
   gap: 1.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  margin-top: 1rem;
+  padding: 1rem 0;
 }
 
-.subadmin-subject-info,
+.subadmin-subjects-grid {
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.subadmin-tasks-grid {
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+}
+
+/* Subject Cards */
+.subadmin-subject-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.subadmin-subject-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.subadmin-subject-card::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.subadmin-subject-card-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.subadmin-subject-card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.subadmin-subject-info {
+  padding: 1.5rem;
+}
+
+.subadmin-subject-info p {
+  margin: 0 0 0.75rem 0;
+  color: #64748b;
+}
+
+.subadmin-subject-info strong {
+  color: #374151;
+  font-weight: 600;
+}
+
+/* Task Cards */
+.subadmin-task-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.subadmin-task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.subadmin-task-card::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.subadmin-task-card-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.subadmin-task-card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
 .subadmin-task-info {
-  padding: 1rem;
-  font-size: 0.95rem;
-  color: var(--text);
+  padding: 1.5rem;
+}
+
+.subadmin-task-info p {
+  margin: 0 0 0.75rem 0;
+  color: #64748b;
   line-height: 1.5;
 }
 
-.subadmin-task-info img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  margin-top: 0.5rem;
-  border: 1px solid var(--border-color);
+.subadmin-task-info strong {
+  color: #374151;
+  font-weight: 600;
 }
 
-/* Task Status Box */
+.subadmin-task-image {
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.subadmin-task-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 .subadmin-task-status {
-  display: flex;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.75rem;
   margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f1f5f9;
 }
 
 .subadmin-status-item {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  background: var(--border-color);
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-light);
+  text-align: center;
+  padding: 0.75rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .subadmin-status-item.pending {
-  background-color: #fff7ed;
-  color: #b45309;
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fbbf24;
 }
 
 .subadmin-status-item.in-progress {
-  background-color: #eef2ff;
-  color: #4f46e5;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #60a5fa;
 }
 
 .subadmin-status-item.completed {
-  background-color: #d1fae5;
-  color: #065f46;
+  background: #d1fae5;
+  color: #059669;
+  border: 1px solid #34d399;
 }
 
-/* Form */
+/* Create Task Form Card */
+.subadmin-create-task-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.subadmin-create-task-card::before {
+  content: '';
+  display: block;
+  height: 4px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.subadmin-create-task-card-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.subadmin-create-task-card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.subadmin-create-task-card form {
+  padding: 1.5rem;
+}
+
 .subadmin-form-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .subadmin-form-group label {
-  font-weight: 500;
-  color: var(--text-light);
-  margin-bottom: 0.3rem;
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
 }
 
 .subadmin-form-group input,
 .subadmin-form-group select,
 .subadmin-form-group textarea {
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  font-size: 0.95rem;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  outline: none;
+  background: #ffffff;
+  font-family: inherit;
 }
 
-/* Create Button */
+.subadmin-form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.subadmin-form-group input:focus,
+.subadmin-form-group select:focus,
+.subadmin-form-group textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.subadmin-form-group input[type="file"] {
+  padding: 0.75rem;
+  border: 2px dashed #cbd5e1;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+.subadmin-form-group input[type="file"]:hover {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
 .subadmin-create-button {
-  padding: 0.6rem 1.2rem;
-  background-color: var(--primary);
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
   color: white;
   border: none;
-  border-radius: 6px;
-  font-weight: 500;
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
   cursor: pointer;
-  transition: 0.2s ease-in-out;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
+  width: 100%;
 }
 
-.subadmin-create-button:hover {
-  background-color: var(--primary-dark);
+.subadmin-create-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
 }
 
-/* Message */
+.subadmin-create-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .subadmin-message {
   margin-top: 1rem;
-  padding: 0.75rem;
-  border-radius: 6px;
-  background-color: var(--bg);
-  border: 1px solid var(--border-color);
+  padding: 1rem;
+  border-radius: 0.5rem;
   font-weight: 500;
-  color: var(--text);
+  background: #d1fae5;
+  color: #059669;
+  border: 1px solid #34d399;
 }
 
-.subadmin-message.error {
-  background-color: var(--error-bg);
-  color: var(--error-color);
+/* Empty States */
+.subadmin-subjects-grid:empty::after,
+.subadmin-tasks-grid:empty::after {
+  content: 'No items to display';
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 1rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .subadmin-subjects-grid,
+  .subadmin-tasks-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0.5rem 0;
+  }
+
+  .subadmin-task-status {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .subadmin-status-item {
+    padding: 0.5rem;
+  }
+
+  .subadmin-create-task-card {
+    margin: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .subadmin-subjects-grid,
+  .subadmin-tasks-grid {
+    gap: 0.75rem;
+  }
+
+  .subadmin-subject-card-header,
+  .subadmin-task-card-header,
+  .subadmin-create-task-card-header {
+    padding: 1rem;
+  }
+
+  .subadmin-subject-card-title,
+  .subadmin-task-card-title,
+  .subadmin-create-task-card-title {
+    font-size: 1.2rem;
+  }
+
+  .subadmin-subject-info,
+  .subadmin-task-info {
+    padding: 1rem;
+  }
+
+  .subadmin-create-task-card form {
+    padding: 1rem;
+  }
+
+  .subadmin-form-group {
+    margin-bottom: 1rem;
+  }
 }

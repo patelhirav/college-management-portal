@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import Sidebar from '../components/Sidebar';
-import Card from '../components/Card';
 import apiService from '../services/api';
 import '../styles/StudentDashboard.css';
 import StudentProfile from '../components/StudentProfile';
@@ -30,8 +29,6 @@ const StudentDashboard = () => {
       fetchTasks();
     }
   }, [activeTab]);
-
-
 
   const fetchSubjects = async () => {
     try {
@@ -110,13 +107,14 @@ const StudentDashboard = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-    
-
       case 'subjects':
         return (
           <div className="student-subjects-grid">
             {subjects.map((subject) => (
-              <Card key={subject.id} title={subject.name} className="student-subject-card">
+              <div key={subject.id} className="student-subject-card">
+                <div className="student-subject-card-header">
+                  <h3 className="student-subject-card-title">{subject.name}</h3>
+                </div>
                 <div className="student-subject-info">
                   <p><strong>Semester:</strong> {subject.semester}</p>
                   <p><strong>Professors:</strong></p>
@@ -126,7 +124,7 @@ const StudentDashboard = () => {
                     ))}
                   </ul>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         );
@@ -135,7 +133,10 @@ const StudentDashboard = () => {
         return (
           <div className="student-tasks-grid">
             {tasks.map((taskAssignment) => (
-              <Card key={taskAssignment.id} title={taskAssignment.task.title} className="student-task-card">
+              <div key={taskAssignment.id} className="student-task-card">
+                <div className="student-task-card-header">
+                  <h3 className="student-task-card-title">{taskAssignment.task.title}</h3>
+                </div>
                 <div className="student-task-info">
                   <p><strong>Subject:</strong> {taskAssignment.task.subject.name}</p>
                   <p><strong>Professor:</strong> {taskAssignment.task.professor.user.email}</p>
@@ -179,7 +180,7 @@ const StudentDashboard = () => {
                     </div>
                   )}
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         );
@@ -193,7 +194,7 @@ const StudentDashboard = () => {
     <Layout
       title="Student Dashboard"
       sidebar={<Sidebar activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />}
-      profileComponent={<StudentProfile />} // Placeholder for profile component
+      profileComponent={<StudentProfile />}
     >
       {renderContent()}
     </Layout>

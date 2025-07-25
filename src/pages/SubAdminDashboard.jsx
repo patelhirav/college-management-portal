@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import Sidebar from '../components/Sidebar';
-import Card from '../components/Card';
 import apiService from '../services/api';
 import '../styles/SubAdminDashboard.css';
 import ProfessorProfile from '../components/ProfessorProfile';
@@ -74,7 +73,7 @@ const SubAdminDashboard = () => {
         description: '',
         semester: '',
         subjectId: '',
-        taskImage: '' || null,
+        taskImage: null,
       });
       fetchTasks();
     } catch (error) {
@@ -98,12 +97,15 @@ const SubAdminDashboard = () => {
         return (
           <div className="subadmin-subjects-grid">
             {subjects.map((subjectAssignment) => (
-              <Card key={subjectAssignment.id} title={subjectAssignment.subject.name} className="subadmin-subject-card">
+              <div key={subjectAssignment.id} className="subadmin-subject-card">
+                <div className="subadmin-subject-card-header">
+                  <h3 className="subadmin-subject-card-title">{subjectAssignment.subject.name}</h3>
+                </div>
                 <div className="subadmin-subject-info">
                   <p><strong>Semester:</strong> {subjectAssignment.subject.semester}</p>
                   <p><strong>Department:</strong> {subjectAssignment.subject.department?.name}</p>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         );
@@ -114,7 +116,10 @@ const SubAdminDashboard = () => {
             {tasks.map((task) => {
               const statusCounts = getTaskStatusCounts(task.taskAssignments);
               return (
-                <Card key={task.id} title={task.title} className="subadmin-task-card">
+                <div key={task.id} className="subadmin-task-card">
+                  <div className="subadmin-task-card-header">
+                    <h3 className="subadmin-task-card-title">{task.title}</h3>
+                  </div>
                   <div className="subadmin-task-info">
                     <p><strong>Subject:</strong> {task.subject.name}</p>
                     <p><strong>Semester:</strong> {task.semester}</p>
@@ -137,7 +142,7 @@ const SubAdminDashboard = () => {
                       </div>
                     </div>
                   </div>
-                </Card>
+                </div>
               );
             })}
           </div>
@@ -145,7 +150,10 @@ const SubAdminDashboard = () => {
 
       case 'create-task':
         return (
-          <Card title="Create New Task" className="subadmin-create-task-card">
+          <div className="subadmin-create-task-card">
+            <div className="subadmin-create-task-card-header">
+              <h3 className="subadmin-create-task-card-title">Create New Task</h3>
+            </div>
             <form onSubmit={handleCreateTask}>
               <div className="subadmin-form-group">
                 <label htmlFor="title">Task Title:</label>
@@ -212,8 +220,7 @@ const SubAdminDashboard = () => {
               </button>
             </form>
             {message && <div className="subadmin-message">{message}</div>}
-            
-          </Card>
+          </div>
         );
 
       default:
@@ -225,7 +232,7 @@ const SubAdminDashboard = () => {
     <Layout
       title="Professor Dashboard"
       sidebar={<Sidebar activeTab={activeTab} setActiveTab={setActiveTab} tabs={tabs} />}
-      profileComponent={<ProfessorProfile/>} // Placeholder for profile component
+      profileComponent={<ProfessorProfile/>}
     >
       {renderContent()}
     </Layout>

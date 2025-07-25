@@ -73,11 +73,10 @@ const Login = () => {
                   type="email"
                   id="email"
                   name="email"
-                  placeholder="Enter your email"
                   value={credentials.email}
                   onChange={handleChange}
                   onFocus={() => handleFocus('email')}
-                  onBlur={handleBlur}
+                 onBlur={handleBlur}
                   required
                   autoComplete="email"
                 />
@@ -92,7 +91,6 @@ const Login = () => {
                   type={showPassword ? "text" : "password"}
                   id="password"
                   name="password"
-                  placeholder="Enter your password"
                   value={credentials.password}
                   onChange={handleChange}
                   onFocus={() => handleFocus('password')}
