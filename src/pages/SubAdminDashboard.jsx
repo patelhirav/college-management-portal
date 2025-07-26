@@ -119,7 +119,7 @@ const SubAdminDashboard = () => {
                 <div key={task.id} className="subadmin-task-card">
                   <div className="subadmin-task-card-header">
                     <h3 className="subadmin-task-card-title">{task.title}</h3>
-                  </div>
+                    </div>
                   <div className="subadmin-task-info">
                     <p><strong>Subject:</strong> {task.subject.name}</p>
                     <p><strong>Semester:</strong> {task.semester}</p>

@@ -8,6 +8,7 @@ import AdminDashboard from './pages/AdminDashboard.jsx';
 import SubAdminDashboard from './pages/SubAdminDashboard.jsx';
 import StudentDashboard from './pages/StudentDashboard.jsx';
 import LoadingSpinner from './components/LoadingSpinner.jsx';
+import ForgotPassword from './pages/ForgotPassword.jsx';
 import './App.css';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -53,6 +54,7 @@ const AppRouter = () => {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/student-signup" element={<StudentSignup />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

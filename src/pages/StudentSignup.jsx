@@ -38,6 +38,8 @@ const StudentSignup = () => {
     });
   };
 
+  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');

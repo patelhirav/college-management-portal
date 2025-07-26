@@ -56,6 +56,27 @@ class ApiService {
     });
   }
 
+   async forgotPassword(data) {
+    return this.request('/auth/forgot-password', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  async verifyOtp(data) {
+    return this.request('/auth/verify-otp', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
+  async resetPassword(data) {
+    return this.request('/auth/reset-password', {
+      method: 'POST',
+      body: data,
+    });
+  }
+
   async studentSignup(data) {
     return this.request('/auth/student-signup', {
       method: 'POST',
