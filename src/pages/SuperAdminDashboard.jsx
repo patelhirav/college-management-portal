@@ -78,7 +78,7 @@ const SuperAdminDashboard = () => {
                   <h3 className="superadmin-department-card-title">{dept.name}</h3>
                 </div>
                 <div className="superadmin-department-stats">
-                  <p><strong>HOD:</strong> {dept.hod?.email || 'Not assigned'}</p>
+                  <p><strong>HOD:</strong>{dept.hod.name|| 'Not assigned'}</p>
                   <p><strong>Professors:</strong> {dept._count.professors}</p>
                   <p><strong>Subjects:</strong> {dept._count.subjects}</p>
                   <p><strong>Students:</strong> {dept._count.students}</p>

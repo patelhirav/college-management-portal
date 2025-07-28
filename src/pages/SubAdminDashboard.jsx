@@ -16,9 +16,10 @@ const SubAdminDashboard = () => {
     subjectId: '',
     taskImage: null,
   });
+   const [editingTask, setEditingTask] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const tabs = [
     { id: 'subjects', label: 'My Subjects' },
     { id: 'tasks', label: 'Tasks' },
@@ -37,6 +38,7 @@ const SubAdminDashboard = () => {
     try {
       const data = await apiService.getAssignedSubjects();
       setSubjects(data);
+      console.log('Fetched subjects:', data);
     } catch (error) {
       console.error('Error fetching subjects:', error);
     }
@@ -83,6 +85,45 @@ const SubAdminDashboard = () => {
     }
   };
 
+   const handleEditTask = (task) => {
+    setEditingTask({
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      semester: task.semester,
+      subjectId: task.subject.id,
+      taskImage: null,
+      existingImageUrl: task.imageUrl
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateTask = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const formData = new FormData();
+      formData.append('title', editingTask.title);
+      formData.append('description', editingTask.description);
+      formData.append('semester', editingTask.semester);
+      formData.append('subjectId', editingTask.subjectId);
+      if (editingTask.taskImage) {
+        formData.append('taskImage', editingTask.taskImage);
+      }
+
+      await apiService.updateTask(editingTask.id, formData);
+      setMessage('Task updated successfully');
+      setIsEditModalOpen(false);
+      fetchTasks();
+    } catch (error) {
+      setMessage(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getTaskStatusCounts = (taskAssignments) => {
     const counts = { PENDING: 0, IN_PROGRESS: 0, COMPLETED: 0 };
     taskAssignments.forEach((assignment) => {
@@ -119,6 +160,12 @@ const SubAdminDashboard = () => {
                 <div key={task.id} className="subadmin-task-card">
                   <div className="subadmin-task-card-header">
                     <h3 className="subadmin-task-card-title">{task.title}</h3>
+                    <button 
+                  onClick={() => handleEditTask(task)}
+                  className="subadmin-edit-button"
+                >
+                  Edit
+                </button>
                     </div>
                   <div className="subadmin-task-info">
                     <p><strong>Subject:</strong> {task.subject.name}</p>
@@ -145,6 +192,94 @@ const SubAdminDashboard = () => {
                 </div>
               );
             })}
+            {/* Edit Task Modal */}
+        {isEditModalOpen && editingTask && (
+          <div className="subadmin-modal-overlay">
+            <div className="subadmin-modal">
+              <div className="subadmin-modal-header">
+                <h3>Edit Task</h3>
+                <button 
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="subadmin-modal-close"
+                >
+                  &times;
+                </button>
+              </div>
+              <form onSubmit={handleUpdateTask}>
+                <div className="subadmin-form-group">
+                  <label htmlFor="edit-title">Task Title:</label>
+                  <input
+                    type="text"
+                    id="edit-title"
+                    value={editingTask.title}
+                    onChange={(e) => setEditingTask({...editingTask, title: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="subadmin-form-group">
+                  <label htmlFor="edit-description">Description:</label>
+                  <textarea
+                    id="edit-description"
+                    value={editingTask.description}
+                    onChange={(e) => setEditingTask({...editingTask, description: e.target.value})}
+                    rows="4"
+                  />
+                </div>
+                <div className="subadmin-form-group">
+                  <label htmlFor="edit-subjectId">Subject:</label>
+                  <select
+                    id="edit-subjectId"
+                    value={editingTask.subjectId}
+                    onChange={(e) => setEditingTask({...editingTask, subjectId: e.target.value})}
+                    required
+                  >
+                    <option value="">Select Subject</option>
+                    {subjects.map((subjectAssignment) => (
+                      <option key={subjectAssignment.id} value={subjectAssignment.subject.id}>
+                        {subjectAssignment.subject.name} (Sem {subjectAssignment.subject.semester})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="subadmin-form-group">
+                  <label htmlFor="edit-semester">Semester:</label>
+                  <select
+                    id="edit-semester"
+                    value={editingTask.semester}
+                    onChange={(e) => setEditingTask({...editingTask, semester: e.target.value})}
+                    required
+                  >
+                    <option value="">Select Semester</option>
+                    {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
+                      <option key={sem} value={sem}>
+                        {sem}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="subadmin-form-group">
+                  <label htmlFor="edit-taskImage">Task Image (Optional):</label>
+                  {editingTask.existingImageUrl && (
+                    <div className="subadmin-existing-image">
+                      <img src={editingTask.existingImageUrl} alt="Current Task" />
+                      <span>Current Image</span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    id="edit-taskImage"
+                    accept="image/*"
+                    onChange={(e) => setEditingTask({...editingTask, taskImage: e.target.files[0]})}
+                  />
+                </div>
+                <button type="submit" disabled={loading} className="subadmin-create-button">
+                  {loading ? 'Updating...' : 'Update Task'}
+                </button>
+                {message && <div className="subadmin-message">{message}</div>}
+              </form>
+            </div>
+          </div>
+        )}
           </div>
         );
 

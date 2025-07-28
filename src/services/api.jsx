@@ -185,6 +185,13 @@ class ApiService {
     });
   }
 
+  async updateTask(taskId, formData) {
+  return this.request(`/sub-admin/tasks/${taskId}`, {
+    method: 'PUT',
+    body: formData,
+  });
+}
+
   async getTasks() {
     return this.request('/sub-admin/tasks');
   }

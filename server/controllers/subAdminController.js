@@ -112,21 +112,30 @@ export const addOrUpdateBio = async (req, res) => {
 
 export const getAssignedSubjects = async (req, res) => {
   try {
-    const professor = await prisma.professor.findUnique({
+        const professor = await prisma.professor.findUnique({
       where: { userId: req.user.id },
       include: {
         subjects: {
           include: {
-            subject: true
+            subject: {
+              include: {
+                department: {
+                  select: {
+                    id: true,
+                    name: true
+                  }
+                }
+              }
+            }
           }
         }
       }
     });
 
+
     if (!professor) {
       return res.status(404).json({ error: 'Professor not found' });
     }
-
     res.json(professor.subjects);
   } catch (error) {
     console.error('Get assigned subjects error:', error);
@@ -209,6 +218,99 @@ export const createTask = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const updateTask = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const { title, description, semester, subjectId } = req.body;
+    const semesterNumber = parseInt(semester, 10);
+
+    let imageUrl = null;
+
+    // Check if task exists and belongs to the professor
+    const professor = await prisma.professor.findUnique({
+      where: { userId: req.user.id },
+    });
+
+    if (!professor) {
+      return res.status(404).json({ error: 'Professor not found' });
+    }
+
+    const existingTask = await prisma.task.findUnique({
+      where: { id: taskId },
+    });
+
+    if (!existingTask) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+
+    if (existingTask.professorId !== professor.id) {
+      return res.status(403).json({ error: 'Not authorized to update this task' });
+    }
+
+    // Upload new image to Cloudinary if provided
+    if (req.file) {
+      // First delete old image if it exists
+      if (existingTask.imageUrl) {
+        const publicId = existingTask.imageUrl.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(`tasks/${publicId}`);
+      }
+
+      // Upload new image
+      const streamUpload = (req) => {
+        return new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: 'tasks' },
+            (error, result) => {
+              if (result) {
+                resolve(result);
+              } else {
+                reject(error);
+              }
+            }
+          );
+          streamifier.createReadStream(req.file.buffer).pipe(stream);
+        });
+      };
+
+      const result = await streamUpload(req);
+      imageUrl = result.secure_url;
+    }
+
+    // Update task
+    const updatedTask = await prisma.task.update({
+      where: { id: taskId },
+      data: {
+        title,
+        description,
+        semester: semesterNumber,
+        subjectId,
+        ...(imageUrl && { imageUrl }), // Only update imageUrl if a new one was uploaded
+      },
+      include: {
+        subject: true,
+        taskAssignments: {
+          include: {
+            student: {
+              include: {
+                user: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    res.status(200).json({
+      message: 'Task updated successfully',
+      task: updatedTask,
+    });
+  } catch (error) {
+    console.error('Update task error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 
 export const getTasks = async (req, res) => {
   try {
