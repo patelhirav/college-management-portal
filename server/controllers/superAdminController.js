@@ -87,34 +87,31 @@ export const getHods = async (req, res) => {
 // ✅ Create HOD + Department
 export const createHod = async (req, res) => {
   try {
-    const { email, password, name, departmentName } = req.body;
+    const { email, password, name, departmentId } = req.body;
 
-    // Check if user already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists' });
     }
 
-    // Hash password
+    const department = await prisma.department.findUnique({ where: { id: departmentId } });
+    if (!department) {
+      return res.status(404).json({ error: 'Department not found' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create department first
-    const department = await prisma.department.create({
-      data: { name: departmentName }
-    });
-
-    // Create user with professor relation (as HOD)
     const user = await prisma.user.create({
       data: {
         name,
         email,
         password: hashedPassword,
-        role: 'ADMIN', // Or 'SUB_ADMIN' depending on your role hierarchy
+        role: 'ADMIN',
         professor: {
           create: {
-            departmentId: department.id,
-            isHod: true, // Mark this professor as HOD
-            bio: null // Set bio to null initially as requested
+            departmentId,
+            isHod: true,
+            bio: null
           }
         }
       },
@@ -123,13 +120,11 @@ export const createHod = async (req, res) => {
       }
     });
 
-    // Update department with HOD reference
     await prisma.department.update({
-      where: { id: department.id },
+      where: { id: departmentId },
       data: { hodId: user.id }
     });
 
-    // Send credentials email
     await sendCredentials(email, password, 'HOD');
 
     res.status(201).json({
@@ -148,6 +143,7 @@ export const createHod = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 // ✅ Get All Departments with HOD and Counts
 export const getDepartments = async (req, res) => {

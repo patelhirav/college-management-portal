@@ -20,6 +20,8 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [expandedSemesters, setExpandedSemesters] = useState([]);
+  const [expandedSemestersForm, setExpandedSemestersForm] = useState([]);
 
   const tabs = [
     { id: 'overview', label: 'Overview' },
@@ -39,6 +41,22 @@ const AdminDashboard = () => {
       setDepartment(data);
     } catch (error) {
       console.error('Error fetching department info:', error);
+    }
+  };
+
+  const toggleSemester = (semester) => {
+    if (expandedSemesters.includes(semester)) {
+      setExpandedSemesters(expandedSemesters.filter(s => s !== semester));
+    } else {
+      setExpandedSemesters([...expandedSemesters, semester]);
+    }
+  };
+
+  const toggleSemesterForm = (semester) => {
+    if (expandedSemestersForm.includes(semester)) {
+      setExpandedSemestersForm(expandedSemestersForm.filter(s => s !== semester));
+    } else {
+      setExpandedSemestersForm([...expandedSemestersForm, semester]);
     }
   };
 
@@ -83,6 +101,17 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const groupSubjectsBySemester = (subjects) => {
+    const grouped = {};
+    subjects?.forEach(subject => {
+      if (!grouped[subject.semester]) {
+        grouped[subject.semester] = [];
+      }
+      grouped[subject.semester].push(subject);
+    });
+    return grouped;
   };
 
   const renderContent = () => {
@@ -137,28 +166,47 @@ const AdminDashboard = () => {
         );
 
       case 'subjects':
+        const groupedSubjects = groupSubjectsBySemester(department.subjects);
         return (
-          <div className="admin-subjects-grid">
-            {department.subjects?.map((subject) => (
-              <div key={subject.id} className="admin-subject-card">
-                <div className="admin-subject-card-header">
-                  <h3 className="admin-subject-card-title">{subject.name}</h3>
+          <div className="admin-subjects-container">
+            {Object.keys(groupedSubjects).sort().map(semester => (
+              <div key={semester} className="admin-semester-group">
+                <div 
+                  className="admin-semester-header"
+                  onClick={() => toggleSemester(parseInt(semester))}
+                >
+                  <h3>Semester {semester}</h3>
+                  <span className="admin-semester-toggle">
+                    {expandedSemesters.includes(parseInt(semester)) ? '−' : '+'}
+                  </span>
                 </div>
-                <div className="admin-subject-info">
-                  <p><strong>Semester:</strong> {subject.semester}</p>
-                  <p><strong>Professors:</strong></p>
-                  <ul>
-                    {subject.professors.map((prof) => (
-                      <li key={prof.id}>{prof.professor.user.name}</li>
+                {expandedSemesters.includes(parseInt(semester)) && (
+                  <div className="admin-subjects-grid">
+                    {groupedSubjects[semester].map((subject) => (
+                      <div key={subject.id} className="admin-subject-card">
+                        <div className="admin-subject-card-header">
+                          <h3 className="admin-subject-card-title">{subject.name}</h3>
+                        </div>
+                        <div className="admin-subject-info">
+                          <p><strong>Semester:</strong> {subject.semester}</p>
+                          <p><strong>Professors:</strong></p>
+                          <ul>
+                            {subject.professors.map((prof) => (
+                              <li key={prof.id}>{prof.professor.user.name}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
                     ))}
-                  </ul>
-                </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
         );
 
       case 'create-professor':
+        const groupedSubjectsForm = groupSubjectsBySemester(department.subjects);
         return (
           <div className="admin-create-professor-card">
             <div className="admin-create-professor-card-header">
@@ -198,27 +246,44 @@ const AdminDashboard = () => {
               <div className="admin-form-group">
                 <label htmlFor="subjects">Assign Subjects:</label>
                 <div className="admin-subjects-checkboxes">
-                  {department.subjects?.map((subject) => (
-                    <label key={subject.id} className="admin-checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={newProfessor.subjectIds.includes(subject.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setNewProfessor({
-                              ...newProfessor,
-                              subjectIds: [...newProfessor.subjectIds, subject.id],
-                            });
-                          } else {
-                            setNewProfessor({
-                              ...newProfessor,
-                              subjectIds: newProfessor.subjectIds.filter((id) => id !== subject.id),
-                            });
-                          }
-                        }}
-                      />
-                      {subject.name} (Sem {subject.semester})
-                    </label>
+                  {Object.keys(groupedSubjectsForm).sort().map(semester => (
+                    <div key={semester} className="admin-semester-form-group">
+                      <div 
+                        className="admin-semester-form-header"
+                        onClick={() => toggleSemesterForm(parseInt(semester))}
+                      >
+                        <h4>Semester {semester}</h4>
+                        <span className="admin-semester-toggle">
+                          {expandedSemestersForm.includes(parseInt(semester)) ? '−' : '+'}
+                        </span>
+                      </div>
+                      {expandedSemestersForm.includes(parseInt(semester)) && (
+                        <div className="admin-semester-subjects">
+                          {groupedSubjectsForm[semester].map((subject) => (
+                            <label key={subject.id} className="admin-checkbox-label">
+                              <input
+                                type="checkbox"
+                                checked={newProfessor.subjectIds.includes(subject.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setNewProfessor({
+                                      ...newProfessor,
+                                      subjectIds: [...newProfessor.subjectIds, subject.id],
+                                    });
+                                  } else {
+                                    setNewProfessor({
+                                      ...newProfessor,
+                                      subjectIds: newProfessor.subjectIds.filter((id) => id !== subject.id),
+                                    });
+                                  }
+                                }}
+                              />
+                              {subject.name}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>

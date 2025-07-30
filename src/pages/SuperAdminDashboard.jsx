@@ -13,7 +13,7 @@ const SuperAdminDashboard = () => {
     name: '',
     email: '',
     password: '',
-    departmentName: '',
+    departmentId: '',
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -59,7 +59,7 @@ const SuperAdminDashboard = () => {
       console.log('Creating HOD with data:', newHod);
       await apiService.createHod(newHod);
       setMessage('HOD created successfully and credentials sent via email');
-      setNewHod({name:'', email: '', password: '', departmentName: '' });
+      setNewHod({ name: '', email: '', password: '', departmentId: '' });
     } catch (error) {
       setMessage(`Error: ${error.message}`);
     } finally {
@@ -78,7 +78,7 @@ const SuperAdminDashboard = () => {
                   <h3 className="superadmin-department-card-title">{dept.name}</h3>
                 </div>
                 <div className="superadmin-department-stats">
-                  <p><strong>HOD:</strong>{dept.hod.name|| 'Not assigned'}</p>
+                  <p><strong>HOD:</strong> {dept.hod?.name || 'Not assigned'}</p>
                   <p><strong>Professors:</strong> {dept._count.professors}</p>
                   <p><strong>Subjects:</strong> {dept._count.subjects}</p>
                   <p><strong>Students:</strong> {dept._count.students}</p>
@@ -91,7 +91,7 @@ const SuperAdminDashboard = () => {
       case 'hods':
         return (
           <div className="superadmin-hods-grid">
-            {hods.map((hod) => (
+            {hods?(hods.map((hod) => (
               <div key={hod.id} className="superadmin-hod-card">
                 <div className="superadmin-hod-card-header">
                   <h3 className="superadmin-hod-card-title">{hod.name}</h3>
@@ -102,7 +102,9 @@ const SuperAdminDashboard = () => {
                   <p><strong>Posted On:</strong> {new Date(hod.createdAt).toLocaleDateString()}</p>
                 </div>
               </div>
-            ))}
+            ))): (
+              <div className="superadmin-no-hods">No HODs found</div>
+            ) }
           </div>
         );
 
@@ -144,14 +146,20 @@ const SuperAdminDashboard = () => {
                 />
               </div>
               <div className="superadmin-form-group">
-                <label htmlFor="departmentName">Department Name:</label>
-                <input
-                  type="text"
-                  id="departmentName"
-                  value={newHod.departmentName}
-                  onChange={(e) => setNewHod({ ...newHod, departmentName: e.target.value })}
+                <label htmlFor="departmentId">Select Department:</label>
+                <select
+                  id="departmentId"
+                  value={newHod.departmentId}
+                  onChange={(e) => setNewHod({ ...newHod, departmentId: e.target.value })}
                   required
-                />
+                >
+                  <option value="">-- Select Department --</option>
+                  {departments.map((dept) => (
+                    <option key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <button type="submit" disabled={loading} className="superadmin-create-button">
                 {loading ? 'Creating...' : 'Create HOD'}

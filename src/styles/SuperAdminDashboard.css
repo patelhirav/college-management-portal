@@ -173,7 +173,48 @@
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
+/* Add this to your existing CSS file */
+.superadmin-form-group select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  outline: none;
+  background: #ffffff;
+  appearance: none; /* Removes default dropdown arrow in some browsers */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+  cursor: pointer;
+}
 
+.superadmin-form-group select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Style for select options */
+.superadmin-form-group option {
+  padding: 0.5rem;
+}
+
+/* For disabled state */
+.superadmin-form-group select:disabled {
+  background-color: #f8fafc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+  .superadmin-form-group select {
+    padding: 0.75rem 0.875rem;
+    background-position: right 0.75rem center;
+  }
+}
 .superadmin-create-button {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Management System API Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            margin-top: 30px;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-left: 4px solid #3498db;
+        }
+        .api-section {
+            margin-bottom: 30px;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .api-endpoint {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .method {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 0.8em;
+            color: white;
+        }
+        .get { background-color: #2ecc71; }
+        .post { background-color: #3498db; }
+        .put { background-color: #f39c12; }
+        .delete { background-color: #e74c3c; }
+        .path {
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        .description {
+            margin-top: 5px;
+            color: #555;
+        }
+        .auth-badge {
+            display: inline-block;
+            background-color: #9b59b6;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <h1>College Management System API Documentation</h1>
+    <p>Base URL: <code>http://localhost:5000/api</code></p>
+
+    <div class="api-section">
+        <h2>Authentication Endpoints</h2>
+        
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/auth/login</span>
+            <span class="auth-badge">No Auth</span>
+            <div class="description">Authenticate user and get access token</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/auth/forgot-password</span>
+            <span class="auth-badge">No Auth</span>
+            <div class="description">Initiate password reset process</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/auth/verify-otp</span>
+            <span class="auth-badge">No Auth</span>
+            <div class="description">Verify OTP for password reset</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/auth/reset-password</span>
+            <span class="auth-badge">No Auth</span>
+            <div class="description">Reset user password</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/auth/student-signup</span>
+            <span class="auth-badge">No Auth</span>
+            <div class="description">Register a new student</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/auth/departments</span>
+            <span class="auth-badge">No Auth</span>
+            <div class="description">Get list of all departments</div>
+        </div>
+    </div>
+
+    <div class="api-section">
+        <h2>Super Admin Endpoints</h2>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/super-admin/profile</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Get super admin profile</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/super-admin/hods</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Get list of all HODs</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/super-admin/create-hod</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Create a new HOD</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/super-admin/departments</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Get list of all departments (admin view)</div>
+        </div>
+    </div>
+
+    <div class="api-section">
+        <h2>Admin (HOD) Endpoints</h2>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/admin/profile</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Get admin profile</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/admin/bio</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Add admin bio information</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method put">PUT</span>
+            <span class="path">/admin/bio</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Update admin bio information</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/admin/department</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Get department information</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/admin/create-professor</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Create a new professor</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/admin/create-subject</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Create a new subject</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/admin/assign-professor</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Assign professor to subject</div>
+        </div>
+    </div>
+
+    <div class="api-section">
+        <h2>Sub-Admin (Professor) Endpoints</h2>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/sub-admin/profile</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Get sub-admin profile</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/sub-admin/bio</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Add sub-admin bio information</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method put">PUT</span>
+            <span class="path">/sub-admin/bio</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Update sub-admin bio information</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/sub-admin/subjects</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Get list of assigned subjects</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/sub-admin/create-task</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Create a new task (supports FormData)</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method put">PUT</span>
+            <span class="path">/sub-admin/tasks/:taskId</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Update a task (supports FormData)</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/sub-admin/tasks</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Get list of all tasks</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/sub-admin/task-status/:taskId</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Get status of a specific task</div>
+        </div>
+    </div>
+
+    <div class="api-section">
+        <h2>Student Endpoints</h2>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/student/profile</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Get student profile</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <span class="path">/student/info</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Add student profile information</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method put">PUT</span>
+            <span class="path">/student/profile</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Update student profile (supports FormData)</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method put">PUT</span>
+            <span class="path">/student/profile/photo</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Update student profile photo (FormData)</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/student/subjects</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Get list of student's subjects</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <span class="path">/student/tasks</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Get list of student's tasks</div>
+        </div>
+        
+        <div class="api-endpoint">
+            <span class="method put">PUT</span>
+            <span class="path">/student/task-status/:taskId</span>
+            <span class="auth-badge">JWT Required</span>
+            <div class="description">Update task status (supports FormData)</div>
+        </div>
+    </div>
+
+    <script>
+        // For example, clicking on an endpoint could show more details or examples
+        document.querySelectorAll('.api-endpoint').forEach(endpoint => {
+            endpoint.addEventListener('click', function() {
+                this.classList.toggle('expanded');
+            });
+        });
+    </script>
+</body>
+</html>
